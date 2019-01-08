@@ -1,0 +1,485 @@
+openapi: "3.0.0"
+info:
+  title: Concerge API Documentation
+  description: This documentation describes Concerge api specifications
+  version: 0.0.1
+  
+servers:
+  - url: https://api.concerge.co/v1
+  
+paths:
+  /concierge/login:
+    summary: Represents a login
+    post: 
+      requestBody:
+        content:
+          application/json: 
+            schema:
+              $ref: '#/components/schemas/LoginDetails'
+            example:
+              userId: 007
+              password: bond_james
+              tenant: MI16
+      responses:
+        '200':
+          description: JWT
+          
+  /user:
+    summary: Fetches user specific information
+    get: 
+      responses:
+        '200':
+          description: User Information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                name: James
+                profileImage: profile/img_80X80
+                
+  /concierge/samplepreference:
+    summary: Fetches sample preferences to help user query preferenses, which is based on logged in user
+    get: 
+      responses:
+        '200':
+          description: Sample Preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamplePreferences'
+              example:
+                - preferenses: Winary with less crowd
+                - preferenses: Want to spend couple of days with 600 budget
+                
+  /typeahead:
+    summary: Fetches typeahed preferences based on current semantic context
+    get: 
+      parameters: 
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Current content
+          
+      responses:
+        '200':
+          description: Sample Preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamplePreferences'
+              example:
+                - preferenses: Winary with less crowd
+                - preferenses: Want to spend couple of days with 600 budget
+  
+  /itinerary:
+    summary:  Create new Itinerary
+    post:
+      requestBody:
+        content:
+          application/json: 
+            schema:
+              $ref: '#/components/schemas/ItineraryRequest'
+          
+      responses:
+        '200':
+          description: Itinerary details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemanticResponse'
+                
+  /itinerary/{id}/semantic:
+    put:
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      
+      responses:
+        '200':
+          description: Itinerary Semantic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemanticResponse'
+                
+  /itinerary/{id}:
+    get:
+      operationId: getItinerary
+      tags:
+        - itinerary
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      
+      responses:
+        '200':
+          description: Itinerary Resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Itinerary'
+            
+    put:
+      operationId: updateItinerary
+      tags:
+        - itinerary
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      
+      responses:
+        '200':
+          description: Itinerary Resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Itinerary'
+                
+  /itinerary/{id}/send:
+    post:
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      
+      requestBody:
+        content:
+        
+          application/json: 
+            schema:
+              $ref: '#/components/schemas/SendRequest'
+      
+      responses:
+        '200':
+          description: Sample Preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendRequest'
+                
+  /itinerary/{id}/book:
+    post:
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      
+      requestBody:
+        content:
+        
+          application/json: 
+            schema:
+              $ref: '#/components/schemas/BookRequest'
+      
+      responses:
+        '200':
+          description: Sample Preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookRequest'
+          
+components:
+  schemas:
+    LoginDetails:
+      type: object
+      properties:
+        userId:
+          type: integer
+        password:
+          type: string
+        tenant:
+          type: string
+          
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        profileImage:
+          type: string
+        
+    SamplePreferences:
+      type: object
+      properties:
+        preferenses:
+          type: array
+          items: 
+            type: string
+            
+    Itinerary:
+     type: object
+     properties:
+      preference:
+        $ref: '#/components/schemas/ItineraryPreference'
+      itineraryDay:
+        type: array
+        items:
+            $ref: '#/components/schemas/ItineraryDay'
+    
+    ItineraryDay:
+      type: object
+      properties:
+        summary:
+          type: string
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+        date: 
+          type: string
+                  
+    SemanticTag:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [ budget, group, food, wine, restaurant, winery, activity, distance, itenarylength, activitylength, dresscode, scenery, crowd ]
+          
+    Place:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [ winery, restaurant, monument, city, gallery, bar ]
+        address:
+          $ref: '#/components/schemas/Address'
+        images:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        ratings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregateRating'
+        wineReviews:
+          description: This is applicable for winery only
+          type: array
+          items:
+            $ref: '#/components/schemas/WineReview'
+            
+    Activity:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [ brunch, lunch, dinner, drinks, wine-tasting, cave, wine-tour ]
+        status:
+          type: string
+          enum: [ confirmed, walk-in, inprocess, self-booked ]
+        place:
+          $ref: '#/components/schemas/Place'
+        dateTime:
+          type: string
+        price:
+          $ref: '#/components/schemas/Money'
+        duration:
+          type: number
+        images:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticTag'
+    
+    ItineraryPreference:
+      type: object
+      properties:
+        adults:
+          type: number
+        children:
+          type: number
+        pets:
+          type: boolean
+        budget:
+          $ref: '#/components/schemas/Budget'
+        wine:
+          type: array
+          items: 
+            $ref: '#/components/schemas/SemanticTag'
+        food:
+          type: array
+          items: 
+            $ref: '#/components/schemas/SemanticTag'
+        other:
+          type: array
+          items: 
+            $ref: '#/components/schemas/SemanticTag'
+        
+    Address:
+      type: object
+      properties:
+        street1:
+          type: string
+        street2:
+            type: string
+        city:
+            type: string
+        state:
+            type: string
+        countr:
+            type: string
+        postal:
+            type: string
+        location:
+            $ref: '#/components/schemas/Location'
+          
+          
+    Location:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: float
+        long:
+          type: number
+          format: float
+          
+    AggregateRating:
+      type: object
+      properties:
+        rating:
+          type: number
+          format: float
+        count:
+          type: number
+        source:
+          type: string
+          enum: [ tripadvisor, google, yelp, opentable, zagat, thrillist ]
+        review:
+          type: string
+        reviewer:
+          type: string
+          
+    WineReview:
+      type: object
+      properties:
+        points:
+          type: number
+          format: float
+        source:
+          type: string
+          enum: [ robert-parker, wine-enthusiast, wine-advisor, vivino, wine-cellar ]
+        tastingNotes:
+          type: string
+          
+    Money:
+      type: object
+      properties:
+        value:
+          type: number
+          format: float
+        currency:
+          type: string
+          
+    Budget:
+      type: object
+      properties:
+        total:
+          $ref: '#/components/schemas/Money'
+        daily:
+          $ref: '#/components/schemas/Money'
+        dinner:
+          $ref: '#/components/schemas/Money'
+        winetasting:
+          $ref: '#/components/schemas/Money'
+          
+    WinePreference:
+      type: object
+      properties:
+        wineName:
+          type: string
+        varietal:
+          type: string
+        type:
+          type: string
+          enum: [ red, white, sparkling  ]
+        aged:
+          type: boolean
+          
+    ItineraryRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+            
+    SemanticResponse:
+      type: object
+      properties:
+        itineraryId:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticTag'
+        itineraryPreference:
+          $ref: '#/components/schemas/ItineraryPreference'
+          
+    SendRequest:
+      type: object
+      properties:
+        id: 
+          type: string
+        contact:
+          type: string
+          
+    BookRequest:
+      type: object
+      properties:
+        id: 
+          type: string
+        name:
+          type: string
+        zipCode:
+          type: number
+        cardNumber:
+          type: number
+        cardType:
+          type: string
+          enum: [ visa, mastercard, amex ]
+        expirationMonth:
+          type: string
+        expirationYear:
+          type: string
+        confirmationCode:
+          type: string
+        
+      
+    
+          
+      
+        
+              
+                
+                
+                
+                
