@@ -1,0 +1,24 @@
+{
+  "name": "oas",
+  "version": "1.0.0",
+  "description": "Sample OAS ",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nikks1991/OAS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nikks1991/OAS/issues"
+  },
+  "homepage": "https://github.com/Nikks1991/OAS#readme",
+  "devDependencies": {
+    "webpack": "^4.28.3",
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-server": "^3.1.14"
+  }
+}
